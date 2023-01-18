@@ -1,0 +1,10 @@
+[package]
+name = "vscode-to-vs"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+random-string = "1.0.0"
+aho-corasick = "0.7.20"

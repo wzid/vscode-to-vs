@@ -1,32 +1,34 @@
-use std::{env, fs, path::Path, vec};
+use std::{fs, path::PathBuf, vec};
 use aho_corasick::AhoCorasick;
-use code_file::CodeFile;
-
-use crate::code_file::FileType;
+use anyhow::Ok;
+use clap::Parser;
 
 pub mod guid;
 pub mod code_file;
+use code_file::*;
 
-fn main() {
-    let args: Vec<String> = env::args().collect();
-    // Check if any arguments are passed to the program
-    if args.len() < 3 {
-        println!("Error: Not enough arguments specified");
-        return;
-    }
+#[derive(Parser)]
+#[command(version, about, long_about = None)]
+struct Args {
+    /// The name of the project to create
+    project_name: String,
+    /// the folder to create the project in
+    folder_path: PathBuf,
+}
+fn main() -> anyhow::Result<()> {
+    let args: Args = Args::parse();
 
     let project_id = guid::generate_guid();
     let solution_id = guid::generate_guid();
 
     //Get project name
-    let project_name = &args[1];
+    let project_name = &args.project_name;
 
     // Convert the argument to a Path object
-    let folder_path = Path::new(&args[2]);
+    let folder_path = args.folder_path.as_path();
 
     //Print out all the files in the original folder
-    for entry in fs::read_dir(folder_path).unwrap() {
-        let entry = entry.unwrap();
+    for entry in fs::read_dir(folder_path)?.filter_map(|x| x.ok()) {
         if entry.path().is_file() {
             println!("{:?}", entry.file_name());
         }
@@ -51,16 +53,15 @@ fn main() {
     let mut code_files: Vec<CodeFile> = vec![];
 
     //Copy over all of the code/data files
-    for entry in fs::read_dir(folder_path).unwrap() {
-        let entry = entry.unwrap();
+    for entry in fs::read_dir(folder_path)?.filter_map(|x| x.ok()) {
         if entry.path().is_file() {
 
-            let code_file_type = match entry.path().extension().unwrap().to_str() {
+            let code_file_type = match entry.path().extension().map(|x| x.to_str()).flatten() {
                 Some("cpp") => FileType::SOURCE,
                 Some("h") => FileType::HEADER,
                 Some("dat") => FileType::TEXT,
                 Some("txt") => FileType::TEXT,
-                _ => FileType::HEADER
+                _ => continue,
             };
 
             code_files.push(CodeFile {
@@ -111,8 +112,7 @@ fn main() {
     let new_filter_file = format!("{}.vcxproj.filters", project_name);
     fs::write(&project_path.join(new_filter_file), filter_first_contents).expect("Failed to write to file");
 
-
-    
+    Ok(())
 }
 
 fn append_second_part_filter(code_files: &Vec<CodeFile>, first_part: &mut String) {

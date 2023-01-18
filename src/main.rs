@@ -24,6 +24,7 @@ fn main() {
     // Convert the argument to a Path object
     let folder_path = Path::new(&args[2]);
 
+    //Print out all the files in the original folder
     for entry in fs::read_dir(folder_path).unwrap() {
         let entry = entry.unwrap();
         if entry.path().is_file() {
@@ -31,7 +32,7 @@ fn main() {
         }
     }
 
-    let new_folder_path = folder_path.join("Visual Studio");
+    let new_folder_path = folder_path.join(&project_name);
     if new_folder_path.exists() {
         // Delete the old folder if it exists
         fs::remove_dir_all(&new_folder_path)
@@ -46,6 +47,7 @@ fn main() {
     
     fs::create_dir(&project_path).expect("Failed to create project folder");
 
+    //Create a vector to hold data on each code or data file in the original folder
     let mut code_files: Vec<CodeFile> = vec![];
 
     //Copy over all of the code/data files
@@ -93,14 +95,17 @@ fn main() {
     fs::write(&project_path.join(new_user_file), user_contents).expect("Failed to write to file");
 
     let mut vcxproj_first_contents = fs::read_to_string("assets/vcxproj").expect("Failed to read the file");
+    //Replace PROJECTID with the actual project id
     vcxproj_first_contents = vcxproj_first_contents.replace("PROJECTID", &project_id);
 
+    // Use the code_files vector to append onto the first part of the vcxproj file
     append_second_part_vcxproj(&code_files, &mut vcxproj_first_contents);
 
     let new_vcxproj_file = format!("{}.vcxproj", project_name);
     fs::write(&project_path.join(new_vcxproj_file), vcxproj_first_contents).expect("Failed to write to file");
 
     let mut filter_first_contents = fs::read_to_string("assets/vcxproj.filters").expect("Failed to read the file");
+    // Use the code_files vector to append onto the first part of the vcxproj.filters file
     append_second_part_filter(&code_files, &mut filter_first_contents);
 
     let new_filter_file = format!("{}.vcxproj.filters", project_name);

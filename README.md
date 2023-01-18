@@ -3,6 +3,7 @@ This tool allows you to create the files needed for a Visual Studio C++ project 
 ## Usage:
 `./vscode-to-vs.app [ProjectName] ["File Path"]`
 The file path should be the path to the folder that holds all the VS Code C++ files
-
-### Example:
+#### Example:
 `./vscode-to-vs.app Lab10 "/Users/wzid/Documents/Lab 10"`
+
+A new folder will be created inside the original folder with all of the files ready to be zipped and submitted for assignment submission

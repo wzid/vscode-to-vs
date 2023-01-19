@@ -74,8 +74,7 @@ fn main() -> anyhow::Result<()> {
         }
     }
 
-    //Read the solution file contents
-    let mut solution_contents = fs::read_to_string("assets/sln").expect("Failed to read the file");
+    let mut solution_contents = include_str!("../assets/sln");
 
     //Here we implement something similar to https://docs.rs/aho-corasick/latest/aho_corasick/struct.AhoCorasick.html#examples
     let patterns = &["NAME", "PROJECTID", "SOLUTIONID"];
@@ -83,19 +82,19 @@ fn main() -> anyhow::Result<()> {
     let ac = AhoCorasick::new(patterns);
 
     //Using the AhoCorasick crate this only allocates one string
-    solution_contents = ac.replace_all(&solution_contents, replace_with);
+    let binding = ac.replace_all(solution_contents, replace_with);
+    solution_contents = &binding;
 
     let new_solution_file = format!("{}.sln", project_name);
     fs::write(&new_folder_path.join(new_solution_file), solution_contents)
         .expect("Failed to write to file");
 
-    let user_contents = fs::read_to_string("assets/vcxproj.user")
-        .expect("Failed to read the file");
+    let user_contents = include_str!("../assets/vcxproj.user");
 
     let new_user_file = format!("{}.vcxproj.user", project_name);
     fs::write(&project_path.join(new_user_file), user_contents).expect("Failed to write to file");
 
-    let mut vcxproj_first_contents = fs::read_to_string("assets/vcxproj").expect("Failed to read the file");
+    let mut vcxproj_first_contents = String::from(include_str!("../assets/vcxproj"));
     //Replace PROJECTID with the actual project id
     vcxproj_first_contents = vcxproj_first_contents.replace("PROJECTID", &project_id);
 
@@ -105,7 +104,7 @@ fn main() -> anyhow::Result<()> {
     let new_vcxproj_file = format!("{}.vcxproj", project_name);
     fs::write(&project_path.join(new_vcxproj_file), vcxproj_first_contents).expect("Failed to write to file");
 
-    let mut filter_first_contents = fs::read_to_string("assets/vcxproj.filters").expect("Failed to read the file");
+    let mut filter_first_contents = String::from(include_str!("../assets/vcxproj.filters"));
     // Use the code_files vector to append onto the first part of the vcxproj.filters file
     append_second_part_filter(&code_files, &mut filter_first_contents);
 

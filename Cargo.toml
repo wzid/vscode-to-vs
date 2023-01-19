@@ -2,6 +2,7 @@
 name = "vscode-to-vs"
 version = "0.1.0"
 edition = "2021"
+include = ["/assets"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -10,3 +11,4 @@ clap = { version = "4", features = ["derive"] }
 random-string = "1.0.0"
 aho-corasick = "0.7.20"
 anyhow = "1"
+

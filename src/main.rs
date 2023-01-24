@@ -111,6 +111,9 @@ fn main() -> anyhow::Result<()> {
     let new_filter_file = format!("{}.vcxproj.filters", project_name);
     fs::write(&project_path.join(new_filter_file), filter_first_contents).expect("Failed to write to file");
 
+
+    println!("\nSuccessfully created the Visual studio files 💖");
+
     Ok(())
 }
 

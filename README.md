@@ -3,7 +3,7 @@ This tool allows you to create the files needed for a Visual Studio C++ project 
 
 ## Installation
 
-### Download [install.sh](https://github.com/wzid/vscode-to-vs/releases/download/latest/install.sh)
+### Download [install.sh](https://github.com/wzid/vscode-to-vs/releases/latest/download/install.sh)
 
 Once downloaded, type `sh ` into the terminal and then drag the `install.sh` file into the terminal
 

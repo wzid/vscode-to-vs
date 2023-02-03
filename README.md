@@ -6,10 +6,12 @@ This tool allows you to create the files needed for a Visual Studio C++ project 
 ### Download [install.sh](https://github.com/wzid/vscode-to-vs/releases/latest/download/install.sh)
 
 Once downloaded, type `sh ` into the terminal and then drag the `install.sh` file into the terminal
+The command should look like `sh /Users/NAME/Downloads/install.sh`
 
-This command will download the vscode-to-vs executable and put it in your PATH
 
-Once the script is completed restart your terminal
+Once you run the script it will download the vscode-to-vs executable and put it in your PATH
+
+Restart your terminal when the script finishes running
 
 ### ⚠️ Make sure you are using the zsh terminal!
 > [How to switch to zsh terminal](https://support.apple.com/en-us/HT208050)

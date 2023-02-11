@@ -1,5 +1,5 @@
 # vscode-to-vs
-This tool allows you to create the files needed for a Visual Studio C++ project so that you can continue coding on a Mac with Visual Studio Code and then submit the Visual Studio project for class assignments
+This command allows you to create the files needed for a Visual Studio C++ project so that you can create the project files on operating systems that do not support Visual Studio C++ development.
 
 ## Installation
 

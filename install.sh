@@ -1,6 +1,6 @@
 #!/bin/bash
 
-new_dir="~/.bin"
+new_dir="$HOME/.bin"
 
 mkdir -p "$new_dir"
 
@@ -31,7 +31,7 @@ if [[ ":$PATH:" != *":$new_dir/:"* ]]; then
 # Using sed we insert the path to the .zprofile file
 
 sed -i '' '$i\
-PATH="~/.bin/:$PATH"
+PATH="$HOME/.bin/:$PATH"
 ' ~/.zprofile
 
 echo "Added 'vscode-to-vs' to the PATH\n"

@@ -1,31 +1,17 @@
 # vscode-to-vs
-This command allows you to create the files needed for a Visual Studio C++ project so that you can create the project files on operating systems that do not support Visual Studio C++ development.
 
-## Installation
+This command allows you to create the files needed for a Visual Studio C++ project. Mostly for operating systems that do not support Visual Studio C++ development.
 
-### Download [install.sh](https://github.com/wzid/vscode-to-vs/releases/latest/download/install.sh)
+## 📝 [Read the docs](https://wzid.dev/docs/vscode-to-vs)
 
-Once downloaded, type `sh ` into the terminal and then drag the `install.sh` file into the terminal
-The command should look like `sh /Users/NAME/Downloads/install.sh`
+<br>
+<br>
 
+<div>
+  <img src="images/input.png" style="box-shadow: 0px 10px 20px 8px rgba(0, 0, 0, 0.3); width: 50%; border-radius: .5rem;">
 
-Once you run the script it will download the vscode-to-vs executable and put it in your PATH
+  <br>
+  <br>
 
-Restart your terminal when the script finishes running
-
-### ⚠️ Make sure you are using the zsh terminal!
-> [How to switch to zsh terminal](https://support.apple.com/en-us/HT208050)
-
-## Usage
-
-In the terminal the command should be formatted as so:
-
-`vscode-to-vs [ProjectName] ["File Path"]`
-
-The file path should be the path to the folder that holds all the VS Code C++ files
-
-#### Example:
-
-`vscode-to-vs Lab10 "/Users/wzid/Documents/Lab 10"`
-
-A new folder will be created inside the original folder with all of the files ready to be zipped
+  <img src="images/result.png" style="  box-shadow: 0px 10px 20px 8px rgba(0, 0, 0, 0.3); width: 50%; border-radius: .5rem;">
+</div>

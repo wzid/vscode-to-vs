@@ -15,6 +15,7 @@ struct Args {
     /// the folder to create the project in
     folder_path: PathBuf,
 }
+
 fn main() -> anyhow::Result<()> {
     let args: Args = Args::parse();
 
@@ -34,7 +35,7 @@ fn main() -> anyhow::Result<()> {
         }
     }
 
-    let new_folder_path = folder_path.join(&project_name);
+    let new_folder_path = folder_path.join(project_name);
     if new_folder_path.exists() {
         // Delete the old folder if it exists
         fs::remove_dir_all(&new_folder_path)
@@ -55,7 +56,7 @@ fn main() -> anyhow::Result<()> {
     //Copy over all of the code/data files
     for entry in fs::read_dir(folder_path)?.filter_map(|x| x.ok()) {
         if entry.path().is_file() {
-
+            
             let code_file_type = match entry.path().extension().map(|x| x.to_str()).flatten() {
                 Some("cpp") => FileType::SOURCE,
                 Some("h") => FileType::HEADER,
@@ -78,21 +79,21 @@ fn main() -> anyhow::Result<()> {
 
     //Here we implement something similar to https://docs.rs/aho-corasick/latest/aho_corasick/struct.AhoCorasick.html#examples
     let patterns = &["NAME", "PROJECTID", "SOLUTIONID"];
-    let replace_with = &[&project_name, &project_id, &solution_id];
+    let replace_with = &[project_name, &project_id, &solution_id];
     let ac = AhoCorasick::new(patterns);
 
     //Using the AhoCorasick crate this only allocates one string
     let binding = ac.replace_all(solution_contents, replace_with);
     solution_contents = &binding;
 
-    let new_solution_file = format!("{}.sln", project_name);
-    fs::write(&new_folder_path.join(new_solution_file), solution_contents)
+    let new_solution_file = format!("{project_name}.sln");
+    fs::write(new_folder_path.join(new_solution_file), solution_contents)
         .expect("Failed to write to file");
 
     let user_contents = include_str!("../assets/vcxproj.user");
 
-    let new_user_file = format!("{}.vcxproj.user", project_name);
-    fs::write(&project_path.join(new_user_file), user_contents).expect("Failed to write to file");
+    let new_user_file = format!("{project_name}.vcxproj.user");
+    fs::write(project_path.join(new_user_file), user_contents).expect("Failed to write to file");
 
     let mut vcxproj_first_contents = String::from(include_str!("../assets/vcxproj"));
     //Replace PROJECTID with the actual project id
@@ -101,15 +102,15 @@ fn main() -> anyhow::Result<()> {
     // Use the code_files vector to append onto the first part of the vcxproj file
     append_second_part_vcxproj(&code_files, &mut vcxproj_first_contents);
 
-    let new_vcxproj_file = format!("{}.vcxproj", project_name);
-    fs::write(&project_path.join(new_vcxproj_file), vcxproj_first_contents).expect("Failed to write to file");
+    let new_vcxproj_file = format!("{project_name}.vcxproj");
+    fs::write(project_path.join(new_vcxproj_file), vcxproj_first_contents).expect("Failed to write to file");
 
     let mut filter_first_contents = String::from(include_str!("../assets/vcxproj.filters"));
     // Use the code_files vector to append onto the first part of the vcxproj.filters file
     append_second_part_filter(&code_files, &mut filter_first_contents);
 
-    let new_filter_file = format!("{}.vcxproj.filters", project_name);
-    fs::write(&project_path.join(new_filter_file), filter_first_contents).expect("Failed to write to file");
+    let new_filter_file = format!("{project_name}.vcxproj.filters");
+    fs::write(project_path.join(new_filter_file), filter_first_contents).expect("Failed to write to file");
 
 
     println!("\nSuccessfully created the Visual studio files 💖");

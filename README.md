@@ -4,8 +4,7 @@ This command allows you to create the files needed for a Visual Studio C++ proje
 
 ## **Installation**
 ```
-brew tap wzid/tap/vscode-to-vs
-brew install vscode-to-vs
+brew install wzid/tap/vscode-to-vs
 ```
 
 <div align="center">

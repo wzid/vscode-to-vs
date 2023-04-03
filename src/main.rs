@@ -1,10 +1,10 @@
-use std::{fs, path::PathBuf, vec};
 use aho_corasick::AhoCorasick;
-use anyhow::Ok;
+use anyhow::{Context, Ok, Result};
 use clap::Parser;
+use std::{fs, path::PathBuf, vec};
 
-pub mod guid;
 pub mod code_file;
+pub mod guid;
 use code_file::*;
 
 #[derive(Parser)]
@@ -16,7 +16,7 @@ struct Args {
     folder_path: PathBuf,
 }
 
-fn main() -> anyhow::Result<()> {
+fn main() -> Result<()> {
     let args: Args = Args::parse();
 
     let project_id = guid::generate_guid();
@@ -28,27 +28,20 @@ fn main() -> anyhow::Result<()> {
     // Convert the argument to a Path object
     let folder_path = args.folder_path.as_path();
 
-    //Print out all the files in the original folder
-    for entry in fs::read_dir(folder_path)?.filter_map(|x| x.ok()) {
-        if entry.path().is_file() {
-            println!("{:?}", entry.file_name());
-        }
-    }
-
     let new_folder_path = folder_path.join(project_name);
     if new_folder_path.exists() {
         // Delete the old folder if it exists
         fs::remove_dir_all(&new_folder_path)
-            .expect("Failed to delete old visual studio folder and contents");
+            .context("Failed to delete old visual studio folder and contents")?;
     }
-    
+
     //Create the Visual Studio folder
-    fs::create_dir(&new_folder_path).expect("Failed to create Visual Studio folder");
-    
+    fs::create_dir(&new_folder_path).context("Failed to create Visual Studio folder")?;
+
     //We now need a project folder which all the code will be in along with everything but the solution file
     let project_path = new_folder_path.join(project_name);
-    
-    fs::create_dir(&project_path).expect("Failed to create project folder");
+
+    fs::create_dir(&project_path).context("Failed to create project folder")?;
 
     //Create a vector to hold data on each code or data file in the original folder
     let mut code_files: Vec<CodeFile> = vec![];
@@ -56,8 +49,7 @@ fn main() -> anyhow::Result<()> {
     //Copy over all of the code/data files
     for entry in fs::read_dir(folder_path)?.filter_map(|x| x.ok()) {
         if entry.path().is_file() {
-            
-            let code_file_type = match entry.path().extension().map(|x| x.to_str()).flatten() {
+            let code_file_type = match entry.path().extension().and_then(|x| x.to_str()) {
                 Some("cpp") => FileType::SOURCE,
                 Some("h") => FileType::HEADER,
                 Some("dat") => FileType::TEXT,
@@ -65,13 +57,15 @@ fn main() -> anyhow::Result<()> {
                 _ => continue,
             };
 
+            println!("Included {:?}", entry.file_name());
+
             code_files.push(CodeFile {
                 file_name: entry.file_name().to_str().unwrap().to_string(),
-                file_type: code_file_type
+                file_type: code_file_type,
             });
 
             let new_path = &project_path.join(entry.file_name());
-            fs::copy(entry.path(), new_path).expect("Failed to copy code/data files");
+            fs::copy(entry.path(), new_path).context("Failed to copy code/data files")?;
         }
     }
 
@@ -88,12 +82,13 @@ fn main() -> anyhow::Result<()> {
 
     let new_solution_file = format!("{project_name}.sln");
     fs::write(new_folder_path.join(new_solution_file), solution_contents)
-        .expect("Failed to write to file");
+        .context("Failed to write to file")?;
 
     let user_contents = include_str!("../assets/vcxproj.user");
 
     let new_user_file = format!("{project_name}.vcxproj.user");
-    fs::write(project_path.join(new_user_file), user_contents).expect("Failed to write to file");
+    fs::write(project_path.join(new_user_file), user_contents)
+        .context("Failed to write to file")?;
 
     let mut vcxproj_first_contents = String::from(include_str!("../assets/vcxproj"));
     //Replace PROJECTID with the actual project id
@@ -103,15 +98,16 @@ fn main() -> anyhow::Result<()> {
     append_second_part_vcxproj(&code_files, &mut vcxproj_first_contents);
 
     let new_vcxproj_file = format!("{project_name}.vcxproj");
-    fs::write(project_path.join(new_vcxproj_file), vcxproj_first_contents).expect("Failed to write to file");
+    fs::write(project_path.join(new_vcxproj_file), vcxproj_first_contents)
+        .context("Failed to write to file")?;
 
     let mut filter_first_contents = String::from(include_str!("../assets/vcxproj.filters"));
     // Use the code_files vector to append onto the first part of the vcxproj.filters file
     append_second_part_filter(&code_files, &mut filter_first_contents);
 
     let new_filter_file = format!("{project_name}.vcxproj.filters");
-    fs::write(project_path.join(new_filter_file), filter_first_contents).expect("Failed to write to file");
-
+    fs::write(project_path.join(new_filter_file), filter_first_contents)
+        .context("Failed to write to file")?;
 
     println!("\nSuccessfully created the Visual studio files 💖");
 
@@ -129,10 +125,13 @@ fn append_second_part_filter(code_files: &Vec<CodeFile>, first_part: &mut String
             FileType::SOURCE => {
                 compile.push('\n');
                 compile.push_str(&format!("    <ClCompile Include=\"{}\">\n      <Filter>Source Files</Filter>\n    </ClCompile>", file.file_name));
-            },
+            }
             FileType::TEXT => {
                 text.push('\n');
-                text.push_str(&format!("    <Text Include=\"{}\">\n      <Filter>Source Files</Filter>\n    </Text>", file.file_name));
+                text.push_str(&format!(
+                    "    <Text Include=\"{}\">\n      <Filter>Source Files</Filter>\n    </Text>",
+                    file.file_name
+                ));
             }
             FileType::HEADER => {
                 header.push('\n');
@@ -170,7 +169,7 @@ fn append_second_part_vcxproj(code_files: &Vec<CodeFile>, first_part: &mut Strin
             FileType::SOURCE => {
                 compile.push('\n');
                 compile.push_str(&format!("    <ClCompile Include=\"{}\" />", file.file_name));
-            },
+            }
             FileType::TEXT => {
                 text.push('\n');
                 text.push_str(&format!("    <Text Include=\"{}\" />", file.file_name));

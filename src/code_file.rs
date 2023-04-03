@@ -1,7 +1,7 @@
 pub enum FileType {
     SOURCE,
     HEADER,
-    TEXT
+    TEXT,
 }
 
 pub struct CodeFile {

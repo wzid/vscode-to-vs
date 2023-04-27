@@ -9,7 +9,7 @@ brew install wzid/tap/vscode-to-vs
 
 <div align="center">
   
-  ## 📝 [**Read the docs**](https://wzid.dev/docs/vscode-to-vs)
+  ## 📝 [**Read the docs**](https://docs.cameron.rs/vscode-to-vs)
 
 </div>
 
